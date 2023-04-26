@@ -27,7 +27,7 @@
                     <!-- Post preview-->
                     {% for item in list %}
                     <div class="post-preview">
-                        <a href="post.html">
+                        <a href="{{ url_for('show_post', index=item.id) }}">
                             <h2 class="post-title"> {{ item.title }} </h2>
                             <h3 class="post-subtitle"> {{ item.subtitle}}</h3>
                         </a>

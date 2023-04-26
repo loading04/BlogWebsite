@@ -4,7 +4,7 @@ import requests
 
 app = Flask(__name__)
 
-list_post_obj = []
+
 
 post_json = requests.get("https://api.npoint.io/ca01e4f19c5ba9f73f70").json()
 
@@ -31,12 +31,10 @@ def contact():
 @app.route("/post/<int:index>")
 def show_post(index):
     requested_post = None
-    for blog_post in list_post_obj:
-        if int(blog_post.id) == index:
+    for blog_post in post_json:
+        if int(blog_post["id"]) == index:
             requested_post = blog_post
-            return render_template("post.html", post=post_json)
-
-    return "<h1>404 not found</h1>"
+    return render_template("post.html", post=requested_post)
 
 
 if __name__ == "__main__":
