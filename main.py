@@ -15,7 +15,7 @@ for post in post_json:
 
 @app.route('/')
 def home():
-    return render_template("index.html", list_post_obj=list_post_obj)
+    return render_template("index.html")
 
 
 @app.route("/post/<int:index>")
