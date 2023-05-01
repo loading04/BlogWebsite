@@ -1,14 +1,12 @@
-from flask import Flask, render_template
-from post import Post
+from flask import Flask, render_template, request
 import requests
 
 app = Flask(__name__)
 
-
-
 post_json = requests.get("https://api.npoint.io/ca01e4f19c5ba9f73f70").json()
 
-#for post in post_json:
+
+# for post in post_json:
 #    post_obj = Post(post_id=post['id'], title=post['title'], subtitle=post['subtitle'], body=post['body'])
 #    list_post_obj.append(post_obj)
 
@@ -26,6 +24,16 @@ def about():
 @app.route('/contact')
 def contact():
     return render_template("contact.html")
+
+
+@app.route('/form-entry', methods=["POST"])
+def receive_data():
+    name = request.form["username"]
+    email = request.form["email"]
+    phone = request.form["phone"]
+    message = request.form["message"]
+    print(f"{name} \n {email} \n {phone} \n {message}")
+    return render_template("contact.html", data=name)
 
 
 @app.route("/post/<int:index>")
