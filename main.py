@@ -1,14 +1,18 @@
 from flask import Flask, render_template, request
 import requests
+import smtplib
+import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
 post_json = requests.get("https://api.npoint.io/ca01e4f19c5ba9f73f70").json()
 
+OWN_EMAIL = os.getenv("OWN_EMAIL")
+OWN_PASSWORD = os.getenv("OWN_PASSWORD")
 
-# for post in post_json:
-#    post_obj = Post(post_id=post['id'], title=post['title'], subtitle=post['subtitle'], body=post['body'])
-#    list_post_obj.append(post_obj)
+
 
 
 @app.route('/')
@@ -28,12 +32,11 @@ def contact():
 
 @app.route('/form-entry', methods=["POST"])
 def receive_data():
-    name = request.form["username"]
-    email = request.form["email"]
-    phone = request.form["phone"]
-    message = request.form["message"]
-    print(f"{name} \n {email} \n {phone} \n {message}")
-    return render_template("contact.html", data=name)
+    if request.method == "POST":
+        data = request.form
+        print(data)
+        send_email(data["username"], data["email"], data["phone"], data["message"])
+        return render_template("contact.html", data=data["username"])
 
 
 @app.route("/post/<int:index>")
@@ -43,6 +46,25 @@ def show_post(index):
         if int(blog_post["id"]) == index:
             requested_post = blog_post
     return render_template("post.html", post=requested_post)
+
+
+def send_email(username, email, phone, message):
+    MY_EMAIL = OWN_EMAIL
+    TO_EMAIL = OWN_EMAIL
+    My_PASSWORD = OWN_PASSWORD
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = "Contact Form"
+    msg['From'] = MY_EMAIL
+    msg['To'] = TO_EMAIL
+    part = MIMEText(f"\nName: {username}\nEmail: {email}\nPhone: {phone}\nMessage:{message}")
+    msg.attach(part)
+    mail = smtplib.SMTP('smtp.gmail.com', 587)
+    mail.ehlo()
+    mail.starttls()
+    mail.login(MY_EMAIL, My_PASSWORD)
+    mail.sendmail(MY_EMAIL, TO_EMAIL, msg.as_string())
+    mail.quit()
 
 
 if __name__ == "__main__":
