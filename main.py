@@ -13,8 +13,6 @@ OWN_EMAIL = os.getenv("OWN_EMAIL")
 OWN_PASSWORD = os.getenv("OWN_PASSWORD")
 
 
-
-
 @app.route('/')
 def home():
     return render_template("index.html", list=post_json)
@@ -53,17 +51,13 @@ def send_email(username, email, phone, message):
     TO_EMAIL = OWN_EMAIL
     My_PASSWORD = OWN_PASSWORD
 
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = "Contact Form"
-    msg['From'] = MY_EMAIL
-    msg['To'] = TO_EMAIL
-    part = MIMEText(f"\nName: {username}\nEmail: {email}\nPhone: {phone}\nMessage:{message}")
-    msg.attach(part)
+    msg = f"\nName: {username}\nEmail: {email}\nPhone: {phone}\nMessage:{message}"
+
     mail = smtplib.SMTP('smtp.gmail.com', 587)
     mail.ehlo()
     mail.starttls()
     mail.login(MY_EMAIL, My_PASSWORD)
-    mail.sendmail(MY_EMAIL, TO_EMAIL, msg.as_string())
+    mail.sendmail(MY_EMAIL, TO_EMAIL, msg)
     mail.quit()
 
 
