@@ -14,7 +14,12 @@ Before running this application, make sure you have the following:
 
 1. Clone this repository to your local machine or download the source code as a ZIP file.
 2. Navigate to the project directory in your terminal or command prompt.
-3. Install the required 
+3. Install the required by running this command
+
+```
+pip install -r requirements.txt
+
+```
 
 
 ## Configuration
