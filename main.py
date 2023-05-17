@@ -1,8 +1,7 @@
 from datetime import date
-import requests
 import smtplib
 import os
-from flask import Flask, render_template, redirect, url_for, jsonify, request
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -18,13 +17,13 @@ app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
-##CONNECT TO DB
+# CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-##CONFIGURE TABLE
+# CONFIGURE TABLE
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(250), unique=True, nullable=False)
@@ -35,7 +34,7 @@ class BlogPost(db.Model):
     img_url = db.Column(db.String(250), nullable=False)
 
 
-##WTForm
+# WTForm
 class CreatePostForm(FlaskForm):
     title = StringField("Blog Post Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
@@ -45,7 +44,7 @@ class CreatePostForm(FlaskForm):
     submit = SubmitField("Submit Post")
 
 
-## HTTP GET - Read Record
+# HTTP GET - Read Record
 
 
 @app.route('/')
@@ -69,6 +68,7 @@ def about():
 def contact():
     return render_template("contact.html")
 
+
 @app.route("/new-post", methods=["GET", "POST"])
 def add_new_post():
     form = CreatePostForm()
@@ -87,6 +87,30 @@ def add_new_post():
             return redirect(url_for("get_all_posts"))
 
     return render_template("make-post.html", form=form)
+
+
+@app.route("/edit-post/<post_id>", methods=["GET", "POST"])
+def edit_post(post_id):
+    post = db.session.get(entity=BlogPost,ident=post_id)
+    edit_form = CreatePostForm(
+        title=post.title,
+        subtitle=post.subtitle,
+        img_url=post.img_url,
+        author=post.author,
+        body=post.body
+    )
+    if edit_form.validate_on_submit():
+        post.title = edit_form.title.data
+        post.subtitle = edit_form.subtitle.data
+        post.img_url = edit_form.img_url.data
+        post.author = edit_form.author.data
+        post.body = edit_form.body.data
+        db.session.commit()
+        return redirect(url_for("show_post", post_id=post.id))
+
+    return render_template("make-post.html", form=edit_form, is_edit=True)
+
+
 @app.route('/form-entry', methods=["POST"])
 def receive_data():
     if request.method == "POST":
@@ -94,8 +118,6 @@ def receive_data():
         print(data)
         send_email(data["username"], data["email"], data["phone"], data["message"])
         return render_template("contact.html", data=data["username"])
-
-
 
 
 def send_email(username, email, phone, message):
