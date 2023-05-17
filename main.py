@@ -91,7 +91,7 @@ def add_new_post():
 
 @app.route("/edit-post/<post_id>", methods=["GET", "POST"])
 def edit_post(post_id):
-    post = db.session.get(entity=BlogPost,ident=post_id)
+    post = db.session.get(entity=BlogPost, ident=post_id)
     edit_form = CreatePostForm(
         title=post.title,
         subtitle=post.subtitle,
@@ -109,6 +109,13 @@ def edit_post(post_id):
         return redirect(url_for("show_post", post_id=post.id))
 
     return render_template("make-post.html", form=edit_form, is_edit=True)
+
+
+@app.route("/delete/<post_id>", methods=["POST", "GET"])
+def delete_post(post_id):
+    db.session.delete(db.session.get(entity=BlogPost, ident=post_id))
+    db.session.commit()
+    return redirect(url_for("get_all_posts"))
 
 
 @app.route('/form-entry', methods=["POST"])
