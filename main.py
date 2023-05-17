@@ -1,6 +1,8 @@
 from datetime import date
-
-from flask import Flask, render_template, redirect, url_for, jsonify
+import requests
+import smtplib
+import os
+from flask import Flask, render_template, redirect, url_for, jsonify, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -8,7 +10,8 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditor, CKEditorField
 
-
+OWN_EMAIL = os.getenv("OWN_EMAIL")
+OWN_PASSWORD = os.getenv("OWN_PASSWORD")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
