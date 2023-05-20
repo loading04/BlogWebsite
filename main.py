@@ -1,7 +1,8 @@
 from datetime import date
 import smtplib
 import os
-from flask import Flask, render_template, redirect, url_for, request, flash
+from functools import wraps
+from flask import Flask, render_template, redirect, url_for, request, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -48,6 +49,18 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(entity=User, ident=user_id)
+
+
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # If id is not 1 then return abort with 403 error
+        if current_user.id != 1:
+            return abort(403)
+        # Otherwise continue with the route function
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 # with app.app_context():
@@ -155,6 +168,7 @@ def logout():
 
 
 @app.route("/new-post", methods=["GET", "POST"])
+@admin_only
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -175,6 +189,7 @@ def add_new_post():
 
 
 @app.route("/edit-post/<post_id>", methods=["GET", "POST"])
+@admin_only
 def edit_post(post_id):
     post = db.session.get(entity=BlogPost, ident=post_id)
     edit_form = CreatePostForm(
@@ -197,6 +212,7 @@ def edit_post(post_id):
 
 
 @app.route("/delete/<post_id>", methods=["POST", "GET"])
+@admin_only
 def delete_post(post_id):
     db.session.delete(db.session.get(entity=BlogPost, ident=post_id))
     db.session.commit()
