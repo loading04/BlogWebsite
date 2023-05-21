@@ -1,5 +1,5 @@
 {% include "header.html" %}
-
+{% import "bootstrap/wtf.html" as wtf %}
 <!-- Page Header -->
 <header class="masthead" style="background-image: url('{{post.img_url}}')">
 	<div class="overlay"></div>
@@ -30,6 +30,31 @@
            <div class="clearfix">
           <a class="btn btn-primary float-right" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
         </div>
+            {% if current_user.is_authenticated %}
+            {{ ckeditor.load() }}
+            {{ ckeditor.config(name='comment') }}
+            {{ wtf.quick_form(form, novalidate=True) }}
+
+            {% endif %}
+
+                            <div class="col-lg-8 col-md-10 mx-auto comment">
+                    {% for comment in post.comments: %}
+                    <ul class="commentList">
+                        <li>
+                            <div class="commenterImage">
+                                <img src="https://pbs.twimg.com/profile_images/744849215675838464/IH0FNIXk.jpg"/>
+                            </div>
+                            <div class="commentText">
+                                {{comment.text|safe}}
+                                <span class="date sub-text">{{comment.author.name}}</span>
+
+                            </div>
+                        </li>
+                    </ul>
+                    {% endfor %}
+                </div>
+
+
           </div>
       </div>
     </div>

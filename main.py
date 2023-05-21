@@ -38,26 +38,29 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
 
-    # This will act like a List of BlogPost objects attached to each User.
-    # The "author" refers to the author property in the BlogPost class.
     posts = relationship("BlogPost", back_populates="author", lazy='subquery')
+    comments = relationship("Comment", back_populates="author", lazy='subquery')
 
 
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
-    # Create Foreign Key, "users.id" the users refers to the tablename of User.
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    # Create reference to the User object, the "posts" refers to the posts protperty in the User class.
     author = relationship("User", back_populates="posts", lazy='subquery')
-
     title = db.Column(db.String(250), unique=True, nullable=False)
     subtitle = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
+    comments = relationship("Comment", back_populates="blog", lazy='subquery')
 
 
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    author = relationship("User", back_populates="comments", lazy='subquery')
+    text = db.Column(db.String(250), nullable=False)
+    blog = relationship("BlogPost", back_populates="comments", lazy='subquery')
+    post_id = db.Column(db.Integer, db.ForeignKey(BlogPost.id))
 
 
 @login_manager.user_loader
@@ -103,6 +106,11 @@ class CreateLoginForm(FlaskForm):
     submit = SubmitField("Login")
 
 
+class CreateCommentForm(FlaskForm):
+    comment = CKEditorField('Comment', validators=[DataRequired()])
+    submit = SubmitField("Submit comment")
+
+
 # HTTP GET - Read Record
 
 
@@ -112,10 +120,22 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts)
 
 
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=['POST', 'GET'])
 def show_post(post_id):
+    form = CreateCommentForm()
     requested_post = db.session.get(entity=BlogPost, ident=post_id)
-    return render_template("post.html", post=requested_post)
+
+    if request.method == "POST":
+        if current_user:
+            comment = Comment(
+                text=request.form.get("comment"),
+                author_id=current_user.id,
+                post_id=post_id
+            )
+            db.session.add(comment)
+            db.session.commit()
+
+    return render_template("post.html", post=requested_post, form=form)
 
 
 @app.route("/about")
@@ -127,9 +147,6 @@ def about():
 def contact():
     return render_template("contact.html")
 
-
-## todo login page
-## todo stay connected
 
 @app.route("/register", methods=['POST', 'GET'])
 def register():
@@ -167,7 +184,6 @@ def login():
         if user is None:
             flash('email not found go to register instead ')
         else:
-            password = user.password
             if check_password_hash(user.password, get_password):
                 login_user(user)
                 return redirect(url_for('get_all_posts'))
@@ -217,9 +233,9 @@ def edit_post(post_id):
     )
     if edit_form.validate_on_submit():
         post.title = edit_form.title.data
+        post.title = edit_form.title.data
         post.subtitle = edit_form.subtitle.data
         post.img_url = edit_form.img_url.data
-        post.author = edit_form.author.data
         post.body = edit_form.body.data
         db.session.commit()
         return redirect(url_for("show_post", post_id=post.id))
