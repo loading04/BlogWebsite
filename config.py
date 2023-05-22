@@ -1,12 +1,10 @@
 import os
 from flask_bootstrap import Bootstrap
 from flask_gravatar import Gravatar
-
-from flask_ckeditor import CKEditor, CKEditorField
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, redirect, url_for, request, flash, abort
-from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from models import User, app,db
+from flask_ckeditor import CKEditor
+from flask import abort
+from flask_login import LoginManager, current_user
+from models import User, app, db
 from functools import wraps
 
 OWN_EMAIL = os.getenv("OWN_EMAIL")

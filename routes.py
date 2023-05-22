@@ -1,7 +1,7 @@
 from datetime import date
-
+from flask import render_template, request, redirect, flash, url_for, logout_user
+from flask_login import login_user
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from config import *
 from forms import *
 from main import send_email
@@ -94,6 +94,7 @@ def logout():
 @app.route("/new-post", methods=["GET", "POST"])
 @admin_only
 def add_new_post():
+
     form = CreatePostForm()
     if form.validate_on_submit():
         if current_user:

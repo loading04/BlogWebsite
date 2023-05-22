@@ -1,9 +1,5 @@
-from datetime import date
 import smtplib
-from werkzeug.security import generate_password_hash, check_password_hash
-from config import *
-from models import *
-from forms import *
+
 from routes import *
 
 
