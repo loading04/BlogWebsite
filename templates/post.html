@@ -1,5 +1,8 @@
-{% include "header.html" %}
+{% extends 'bootstrap/base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+{% include "header.html" %}
 <!-- Page Header -->
 <header class="masthead" style="background-image: url('{{post.img_url}}')">
 	<div class="overlay"></div>
@@ -41,8 +44,8 @@
                     {% for comment in post.comments: %}
                     <ul class="commentList">
                         <li>
-                            <div class="commenterImage">
-                                <img src="https://pbs.twimg.com/profile_images/744849215675838464/IH0FNIXk.jpg"/>
+                             <div class="commenterImage">
+                                 <img src="{{ comment.author.email | gravatar }}"/>
                             </div>
                             <div class="commentText">
                                 {{comment.text|safe}}
@@ -62,3 +65,4 @@
 
   <hr>
 {% include "footer.html" %}
+{% endblock %}

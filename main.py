@@ -13,6 +13,9 @@ from flask_ckeditor import CKEditor, CKEditorField
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from flask_gravatar import Gravatar
+
+
 OWN_EMAIL = os.getenv("OWN_EMAIL")
 OWN_PASSWORD = os.getenv("OWN_PASSWORD")
 
@@ -27,7 +30,7 @@ login_manager.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
+gravatar = Gravatar(app, size=30, rating='g', default='retro', force_default=False, force_lower=False, use_ssl=False, base_url=None)
 
 # CONFIGURE TABLE
 
